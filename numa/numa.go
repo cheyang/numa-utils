@@ -9,7 +9,7 @@ import (
 // #include <numa.h>
 import "C"
 
-var NumaNotAvailable = errors.New("Numa not Available")
+var NumaNotAvailable = errors.New("No NUMA support available on this system")
 
 /* Is Numa available? */
 func IsNumaAvailable() int {
@@ -26,14 +26,13 @@ func NumConfiguredCPUs() int { return int(C.numa_num_configured_cpus()) }
 * Get Memory of the Numa node
 **/
 func MemoryOfNode(node int) (inAll, free uint64) {
-
 	cFree := C.longlong(0)
 	cInAll := C.numa_node_size64(C.int(node), &cFree)
 	return uint64(cInAll), uint64(cFree)
 }
 
-func MemInMB(mem uint64) string {
-	return fmt.Sprintf("%d", mem)
+func MemInMB(mem uint64) uint64 {
+	return mem >> 20
 }
 
 /**
@@ -45,12 +44,9 @@ func Nodes() (nodes []int, err error) {
 		return nodes, NumaNotAvailable
 	}
 
-	mask := C.numa_allocate_nodemask()
-	defer C.numa_free_nodemask(mask)
-
-	maxnode := C.numa_max_node()
-	for i := 0; i < maxnode; i++ {
-		if C.numa_bitmask_isbitset(mask, C.uint(i)) > 0 {
+	maxnode := int(C.numa_max_node())
+	for i := 0; i <= maxnode; i++ {
+		if C.numa_bitmask_isbitset(C.numa_nodes_ptr, C.uint(i)) > 0 {
 			nodes = append(nodes, i)
 		}
 	}
@@ -78,8 +74,51 @@ func CPUsOfNode(node int) (cpus []int, err error) {
 				cpus = append(cpus, i)
 			}
 		}
+	} else {
+		return cpus, NumaNotAvailable
 	}
 
 	return cpus, nil
 
+}
+
+func PrintDistance() {
+
+	maxnode := MaxNode()
+	fst := 0
+
+	for i := 0; i < maxnode; i++ {
+		if C.numa_bitmask_isbitset(C.numa_nodes_ptr, C.uint(i)) > 0 {
+			fst = i
+			break
+		}
+	}
+
+	if C.numa_distance(C.int(maxnode), C.int(fst)) == 0 {
+		fmt.Println("No distance information available.")
+		return
+	}
+
+	fmt.Printf("node distances:\n")
+	fmt.Printf("node ")
+	for i := 0; i <= maxnode; i++ {
+		if int(C.numa_bitmask_isbitset(C.numa_nodes_ptr, C.uint(i))) > 0 {
+
+			fmt.Printf("% 3d ", i)
+		}
+	}
+	fmt.Printf("\n")
+	for i := 0; i <= maxnode; i++ {
+		if int(C.numa_bitmask_isbitset(C.numa_nodes_ptr, C.uint(i))) == 0 {
+			continue
+		}
+		fmt.Printf("% 3d: ", i)
+		for k := 0; k <= maxnode; k++ {
+			if C.numa_bitmask_isbitset(C.numa_nodes_ptr, C.uint(i)) > 0 &&
+				C.numa_bitmask_isbitset(C.numa_nodes_ptr, C.uint(k)) > 0 {
+				fmt.Printf("% 3d ", C.numa_distance(C.int(i), C.int(k)))
+			}
+		}
+		fmt.Printf("\n")
+	}
 }

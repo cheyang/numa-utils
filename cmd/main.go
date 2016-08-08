@@ -1,9 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/cheyang/numa-utils/numa"
 	"github.com/spf13/cobra"
 )
@@ -13,33 +13,40 @@ var mainCmd = &cobra.Command{
 	Short:        "Run numa display",
 	SilenceUsage: false,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		log.SetOutput(os.Stderr)
+		// log.SetOutput(os.Stderr)
 
 		nodes, err := numa.Nodes()
 
 		if err != nil {
-			return error
+			return err
 		}
 
-		log.Infof("available: %d nodes\n", len(nodes))
+		fmt.Printf("available: %d nodes\n", len(nodes))
 
 		for _, node := range nodes {
-			cpus := numa.CPUsOfNode(node)
-			log.Infof("node %d cpus: %+v\n", node, cpus)
-			all, free := MemoryOfNode(node)
-			log.Infof("node %d size: %d MB\n", node, numa.MemInMB(all))
-			log.Infof("node %d free: %d MB\n", node, numa.MemInMB(free))
+			cpus, err := numa.CPUsOfNode(node)
+			if err != nil {
+				return err
+			}
+			fmt.Printf("node %d cpus: %+v\n", node, cpus)
+			all, free := numa.MemoryOfNode(node)
+			fmt.Printf("node %d size: %d MB\n", node, numa.MemInMB(all))
+			fmt.Printf("node %d free: %d MB\n", node, numa.MemInMB(free))
 		}
 
+		numa.PrintDistance()
+
+		return nil
 	},
 }
 
 func main() {
 	if err := mainCmd.Execute(); err != nil {
-		log.Fatalf("Err is %v", err)
+		fmt.Printf("Err is %v", err)
+		os.Exit(-1)
 	}
 }
 
 func init() {
-	mainCmd.Flags().BoolP("hardware", "h", true, "Display hardware and exit")
+	mainCmd.Flags().BoolP("hardware", "H", true, "Display hardware and exit")
 }
