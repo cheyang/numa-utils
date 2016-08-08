@@ -1,4 +1,4 @@
-ROM golang:1.6
+FROM golang:1.6
 
 ARG MIRROR=ftp://oss.sgi.com
 ARG VERSION=2.0.11
