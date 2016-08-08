@@ -1,0 +1,28 @@
+ROM golang:1.6
+
+ARG MIRROR=ftp://oss.sgi.com
+ARG VERSION=2.0.11
+
+# install numa library
+RUN mkdir -p /tmp \
+    && cd /tmp \
+    && wget -q -O - $MIRROR/www/projects/libnuma/download/numactl-$VERSION.tar.gz| tar -xzf - -C /tmp \
+    && mv /tmp/numactl-$VERSION /tmp/numactl \
+    && cd /tmp/numactl \
+    && ./configure \
+    && make \
+    && make install
+
+ADD build.sh /usr/local/bin
+
+RUN chmod 744 /usr/local/bin/build.sh \
+	&& go get github.com/tools/godep
+
+
+ENV CGO_CFLAGS "-I /usr/local/include"
+ENV CGO_LDFLAGS "-L /usr/local/lib"
+
+RUN mkdir -p /go/src/github.com/cheyang \
+	&& cd /go/src/github.com/cheyang
+        
+CMD /usr/local/bin/build.sh
