@@ -48,9 +48,9 @@ func Nodes() (nodes []int, err error) {
 	mask := C.numa_allocate_nodemask()
 	defer C.numa_free_nodemask(mask)
 
-	maxnode = C.numa_max_node()
+	maxnode := C.numa_max_node()
 	for i := 0; i < maxnode; i++ {
-		if C.numa_bitmask_isbitset(mask, i) > 0 {
+		if C.numa_bitmask_isbitset(mask, C.uint(i)) > 0 {
 			nodes = append(nodes, i)
 		}
 	}

@@ -2,6 +2,8 @@
 
 go get github.com/tools/godep
 
+mkdir -p $GOPATH/build
+
 export PATH=$GOPATH/bin:$PATH
 
 # Download the code
@@ -11,7 +13,7 @@ git clone https://github.com/cheyang/numa-utils.git
 
 #create version go file
 cd $GOPATH/src/github.com/cheyang/numa-utils/cmd
-godep go build -v -ldflags="-s" -o $GOPATH/bin/gonumactl
+godep go build -v -ldflags="-s" -o $GOPATH/build/gonumactl
 
 STATUS=${?}
 

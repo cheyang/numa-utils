@@ -1,7 +1,7 @@
 DOCKER_CMD ?= docker
 PREFIX    ?= /usr/bin
 
-BIN_DIR  := $(CURDIR)/bin
+BIN_DIR  := $(CURDIR)/build
 BUILD_IMAGE := numa
 
 DOCKER_VERS      := $(shell $(DOCKER_CMD) version -f '{{.Client.Version}}')
@@ -19,4 +19,4 @@ ifneq ($(DOCKER_SUPPORTED),true)
 endif
 	@$(DOCKER_CMD) build -t $(BUILD_IMAGE) -f Dockerfile.build $(CURDIR)
 	@mkdir -p $(BIN_DIR)
-	@$(DOCKER_CMD) run --rm -it --net=host -v $(BIN_DIR):/go/bin $(BUILD_IMAGE)
+	@$(DOCKER_CMD) run --rm -it --net=host -v $(BIN_DIR):/go/build $(BUILD_IMAGE)
