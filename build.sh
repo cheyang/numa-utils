@@ -2,6 +2,8 @@
 
 go get github.com/tools/godep
 
+export PATH=$GOPATH/bin:$PATH
+
 # Download the code
 cd $GOPATH/src/github.com/cheyang
 
