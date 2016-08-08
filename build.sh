@@ -8,7 +8,7 @@ cd $GOPATH/src/github.com/cheyang
 git clone https://github.com/cheyang/numa-utils.git
 
 #create version go file
-cd $GOPATH/src/cheyang/numa-utils/cmd
+cd $GOPATH/src/github.com/cheyang/numa-utils/cmd
 godep go build -v -ldflags="-s" -o $GOPATH/bin/gonumactl
 
 STATUS=${?}
