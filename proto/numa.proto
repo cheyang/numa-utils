@@ -1,0 +1,36 @@
+syntax = "proto3";
+package numa;
+
+option go_package = "github.com/cheyang/numa-utils/proto;numa";
+
+
+// numa service to expose the info and metrics
+
+service Numa {
+	rpc GetInfo(Empty) returns (InfoResponse);
+	rpc GetMetrics(Empty) returns (MetricsResponse);
+}
+
+message Empty {}
+
+message InfoResponse {
+    repeated Node nodes = 1;
+
+	message Node {
+		uint32 id = 1;
+		repeated uint32 cpuSet = 2;
+		uint64 total = 3;
+		uint64 free = 4;
+	}
+}
+
+message MetricsResponse {
+	
+	repeated Distance distances = 1;
+
+	message Distance {
+		uint32 start = 1;
+		uint32 end = 2;
+		uint32 length = 3;
+	}
+}
