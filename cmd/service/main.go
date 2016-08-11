@@ -5,6 +5,7 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"syscall"
 
 	log "github.com/Sirupsen/logrus"
 	numa "github.com/cheyang/numa-utils/proto"
@@ -18,7 +19,7 @@ func main() {
 	flag.Parse()
 	log.SetOutput(os.Stdout)
 	interrupts := make(chan os.Signal)
-	signal.Notify(interrupts, os.Interrupt)
+	signal.Notify(interrupts, syscall.SIGTERM, syscall.SIGINT)
 	go func() {
 		<-interrupts
 		log.Infof("Exit.")
@@ -38,5 +39,5 @@ func main() {
 }
 
 func init() {
-	flag.StringVar(&bind, "bind", ":20000", "Service bind address")
+	flag.StringVar(&bind, "bind", ":30000", "Service bind address")
 }
