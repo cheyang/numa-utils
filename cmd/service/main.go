@@ -9,7 +9,6 @@ import (
 	log "github.com/Sirupsen/logrus"
 	numa "github.com/cheyang/numa-utils/proto"
 	"github.com/cheyang/numa-utils/service"
-	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 )
 
@@ -17,13 +16,12 @@ var bind string
 
 func main() {
 	flag.Parse()
-
-	ctx, cancel := context.WithCancel(context.Background())
+	log.SetOutput(os.Stdout)
 	interrupts := make(chan os.Signal)
 	signal.Notify(interrupts, os.Interrupt)
 	go func() {
 		<-interrupts
-		cancel()
+		log.Infof("Exit.")
 		os.Exit(0)
 	}()
 
@@ -34,6 +32,7 @@ func main() {
 	server := service.Server{}
 	s := grpc.NewServer()
 	numa.RegisterNumaServer(s, server)
+	log.Infof("listen on %v", listen)
 	panic(s.Serve(listen))
 
 }
