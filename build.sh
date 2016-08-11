@@ -32,3 +32,14 @@ if [[ ${STATUS} -ne 0 ]]; then
   echo "Failed in building numa-service"
   exit 1
 fi
+
+#create api client
+cd $GOPATH/src/github.com/cheyang/numa-utils/cmd/client
+godep go build -v -ldflags="-s" -o $GOPATH/build/numa-client
+
+STATUS=${?}
+
+if [[ ${STATUS} -ne 0 ]]; then
+  echo "Failed in building numa-client"
+  exit 1
+fi
