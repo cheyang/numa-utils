@@ -9,6 +9,8 @@ import (
 	log "github.com/Sirupsen/logrus"
 	numa "github.com/cheyang/numa-utils/proto"
 	"github.com/cheyang/numa-utils/service"
+	"golang.org/x/net/context"
+	"google.golang.org/grpc"
 )
 
 var bind string
@@ -32,7 +34,6 @@ func main() {
 	server := service.Server{}
 	s := grpc.NewServer()
 	numa.RegisterNumaServer(s, server)
-
 	panic(s.Serve(listen))
 
 }

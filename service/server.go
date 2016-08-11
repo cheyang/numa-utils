@@ -19,12 +19,19 @@ func (this Server) GetInfo(ctx context.Context, req *pb.Empty) (response *pb.Inf
 
 	nodes, err := numa.Nodes()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	fmt.Printf("available: %d nodes\n", len(nodes))
 
 	for _, node := range nodes {
 		cpus, err := numa.CPUsOfNode(node)
+
+		cpusInt32 := make([]uint32, len(cpus))
+
+		for i, cpu := range cpus {
+			cpusInt32[i] = uint32(cpu)
+		}
+
 		if err != nil {
 			return nil, grpc.Errorf(codes.Unavailable, "failed message: %v", err)
 		}
@@ -33,9 +40,9 @@ func (this Server) GetInfo(ctx context.Context, req *pb.Empty) (response *pb.Inf
 		fmt.Printf("node %d size: %d MB\n", node, numa.MemInMB(total))
 		fmt.Printf("node %d free: %d MB\n", node, numa.MemInMB(free))
 		pbNode := &pb.InfoResponse_Node{
-			CpuSet: cpus,
-			Free:   free,
-			Total:  total,
+			CpuSet: cpusInt32,
+			Free:   numa.MemInMB(free),
+			Total:  numa.MemInMB(total),
 		}
 		response.Nodes = append(response.Nodes, pbNode)
 	}
@@ -47,5 +54,5 @@ func (this Server) GetInfo(ctx context.Context, req *pb.Empty) (response *pb.Inf
 func (this Server) GetMetrics(ctx context.Context, req *pb.Empty) (response *pb.MetricsResponse, err error) {
 	response = &pb.MetricsResponse{Distances: make([]*pb.MetricsResponse_Distance, 0)}
 
-	return response
+	return response, nil
 }
