@@ -122,3 +122,36 @@ func PrintDistance() {
 		fmt.Printf("\n")
 	}
 }
+
+type Distance struct {
+	Start  uint32
+	End    uint32
+	Length uint32
+}
+
+func GetDistances() (distances []Distance) {
+	maxnode := MaxNode()
+
+	for i := 0; i <= maxnode; i++ {
+		if int(C.numa_bitmask_isbitset(C.numa_nodes_ptr, C.uint(i))) == 0 {
+			continue
+		}
+
+		for k := 0; k <= maxnode; k++ {
+			if C.numa_bitmask_isbitset(C.numa_nodes_ptr, C.uint(i)) > 0 &&
+				C.numa_bitmask_isbitset(C.numa_nodes_ptr, C.uint(k)) > 0 {
+
+				distance := Distance{
+					Start:  uint32(i),
+					End:    uint32(k),
+					Length: uint32(C.numa_distance(C.int(i), C.int(k))),
+				}
+
+				distances = append(distances, distance)
+				fmt.Printf("append distance %v\n", distance)
+			}
+		}
+	}
+
+	return
+}

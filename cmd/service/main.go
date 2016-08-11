@@ -33,7 +33,7 @@ func main() {
 	server := service.Server{}
 	s := grpc.NewServer()
 	numa.RegisterNumaServer(s, server)
-	log.Infof("listen on %v", listen)
+	log.Infof("listen on %v", listen.Addr())
 	panic(s.Serve(listen))
 
 }

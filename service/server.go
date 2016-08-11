@@ -54,5 +54,15 @@ func (this Server) GetInfo(ctx context.Context, req *pb.Empty) (response *pb.Inf
 func (this Server) GetMetrics(ctx context.Context, req *pb.Empty) (response *pb.MetricsResponse, err error) {
 	response = &pb.MetricsResponse{Distances: make([]*pb.MetricsResponse_Distance, 0)}
 
+	distances := numa.GetDistances()
+
+	for _, distance := range distances {
+		response.Distances = append(response.Distances, &pb.MetricsResponse_Distance{
+			Start:  distance.Start,
+			End:    distance.End,
+			Length: distance.Length,
+		})
+	}
+
 	return response, nil
 }
