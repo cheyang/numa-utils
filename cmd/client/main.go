@@ -30,7 +30,8 @@ func main() {
 	}
 	client := numa.NewNumaClient(conn)
 
-	signals := make(chan os.Signal, 1)
+	signals := make(chan os.Signal)
+
 	//Exit on system signal -3 or -15
 	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
 
@@ -38,7 +39,7 @@ func main() {
 		select {
 		case <-signals:
 			fmt.Println("exited successfully.")
-			break
+			os.Exit(0)
 		case <-time.After(period):
 		}
 
