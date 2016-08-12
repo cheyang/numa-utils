@@ -71,4 +71,11 @@ node   0   1
 ```
 
 
+```sh
+./numa-service --bind 0.0.0.0:30000
+```
+
+```sh
+./numa-client --server host:30000 --period 1s
+```
 
